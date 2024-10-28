@@ -53,7 +53,7 @@
     <DirectPInvoke Include="Advapi32" />
     <DirectPInvoke Include="OpenCvSharpExtern" />
     <DirectPInvoke Include="external_renderer_ipc" />
-    <NativeLibrary Include="delayimp.lib"/>
+    <NativeLibrary Include="delayimp.lib" />
     <NativeLibrary Include="$(ProjectDir)lib\x64\OpenCvSharpExtern.lib" Condition="$(RuntimeIdentifier.StartsWith('win-x64'))" />
     <NativeLibrary Include="$(ProjectDir)lib\x64\external_renderer_ipc.lib" Condition="$(RuntimeIdentifier.StartsWith('win-x64'))" />
   </ItemGroup>

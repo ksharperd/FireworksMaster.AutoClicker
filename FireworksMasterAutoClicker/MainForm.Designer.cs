@@ -9,6 +9,7 @@
 
         private Button btnToggle = new Button();
         private Button btnPreview = new Button();
+        private PictureBox previewBox = new PictureBox();
 
         /// <summary>
         ///  Clean up any resources being used.
@@ -33,14 +34,18 @@
         {
             this.components = new System.ComponentModel.Container();
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(533, 300);
+            this.ClientSize = new System.Drawing.Size(576, 1024);
             this.Text = "FMAC";
             this.MaximizeBox = false;
             this.ShowIcon = false;
             this.StartPosition = FormStartPosition.CenterScreen;
 
+            this.Controls.Add(previewBox);
             this.Controls.Add(btnToggle);
             this.Controls.Add(btnPreview);
+
+            this.previewBox.SizeMode = PictureBoxSizeMode.StretchImage;
+            this.previewBox.BackColor = Color.Transparent;
 
             this.btnToggle.AutoSize = true;
             this.btnToggle.Text = "Toggle";

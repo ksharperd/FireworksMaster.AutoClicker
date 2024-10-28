@@ -62,7 +62,7 @@ internal static partial class MuMu
     /// <param name="y">y pos.</param>
     /// <returns><inheritdoc cref="CaptureDisplay(int, uint, int, ref int, ref int, ref byte)"/></returns>
     [LibraryImport(MuMuExtraLibrary, EntryPoint = "nemu_input_event_touch_down", SetLastError = false)]
-    public static partial int InputEventTouchDown(int handle, uint displayId, int x, int y);
+    public static partial int InputEventTouchDown(int handle, int displayId, int x, int y);
 
     /// <summary>
     /// raise touch up event at pos.
@@ -71,7 +71,7 @@ internal static partial class MuMu
     /// <param name="displayId">display id, return value from <see cref="GetDisplayId(int, string, int)"/></param>
     /// <returns><inheritdoc cref="CaptureDisplay(int, uint, int, ref int, ref int, ref byte)"/></returns>
     [LibraryImport(MuMuExtraLibrary, EntryPoint = "nemu_input_event_touch_up", SetLastError = false)]
-    public static partial int InputEventTouchUp(int handle, uint displayId);
+    public static partial int InputEventTouchUp(int handle, int displayId);
 
     /// <summary>
     /// raise touch down event with multi-finger at pos.
@@ -83,7 +83,7 @@ internal static partial class MuMu
     /// <param name="y">y pos.</param>
     /// <returns><inheritdoc cref="CaptureDisplay(int, uint, int, ref int, ref int, ref byte)"/></returns>
     [LibraryImport(MuMuExtraLibrary, EntryPoint = "nemu_input_event_finger_touch_down", SetLastError = false)]
-    public static partial int InputEventFingerTouchDown(int handle, uint displayId, int fingerId, int x, int y);
+    public static partial int InputEventFingerTouchDown(int handle, int displayId, int fingerId, int x, int y);
 
     /// <summary>
     /// raise touch up event with multi-finger at pos.
@@ -93,6 +93,6 @@ internal static partial class MuMu
     /// <param name="fingerId">which finger you press up, range is [1, 10].</param>
     /// <returns><inheritdoc cref="CaptureDisplay(int, uint, int, ref int, ref int, ref byte)"/></returns>
     [LibraryImport(MuMuExtraLibrary, EntryPoint = "nemu_input_event_finger_touch_up", SetLastError = false)]
-    public static partial int InputEventFingerTouchUp(int handle, uint displayId, int fingerId);
+    public static partial int InputEventFingerTouchUp(int handle, int displayId, int fingerId);
 
 }
