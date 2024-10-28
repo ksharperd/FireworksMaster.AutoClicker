@@ -2,9 +2,9 @@
 using System.Diagnostics;
 
 using Windows.Win32;
-using OpenCvSharp;
 using Windows.Win32.Foundation;
-using System.Runtime.InteropServices;
+
+using OpenCvSharp;
 using FMAC.EmulatorInterop;
 using System.Runtime.CompilerServices;
 using System.Buffers;
@@ -88,7 +88,7 @@ namespace FMAC
                     continue;
                 }
 
-                if (!NativeLibrary.TryLoad(sdkLibraryPathMuMu, out hNemuSDK))
+                if (Native.LoadLibrary(sdkLibraryPathMuMu).IsNull)
                 {
                     continue;
                 }
@@ -127,7 +127,6 @@ namespace FMAC
                 Mat<byte> mat = Mat<byte>.FromArray(buffer);
                 // TODO
             } while (!exit);
-            MuMu.Disconnect(nemuHandle);
             ResetConnectionStatus();
         }
 

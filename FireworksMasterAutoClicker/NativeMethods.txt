@@ -3,3 +3,4 @@ GetStdHandle
 GetConsoleMode
 SetConsoleMode
 IsWindow
+LoadLibrary
