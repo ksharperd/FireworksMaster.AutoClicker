@@ -1,11 +1,9 @@
 ﻿using SystemIO = System.IO;
 using System.Diagnostics;
-using System.Drawing.Imaging;
 
 using Windows.Win32;
 using OpenCvSharp;
 using Windows.Win32.Foundation;
-using OpenCvSharp.Extensions;
 using System.Runtime.InteropServices;
 using FMAC.EmulatorInterop;
 using System.Runtime.CompilerServices;
