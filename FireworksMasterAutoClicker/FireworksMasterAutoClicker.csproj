@@ -50,6 +50,8 @@
     <!--<DirectPInvoke Include="Kernel32" />-->
     <DirectPInvoke Include="User32" />
     <DirectPInvoke Include="Advapi32" />
+    <DirectPInvoke Include="OpenCvSharpExtern" />
+    <NativeLibrary Include="$(ProjectDir)lib\x64\OpenCvSharpExtern.lib" Condition="$(RuntimeIdentifier.StartsWith('win-x64'))" />
   </ItemGroup>
 
   <ItemGroup Condition="$(RuntimeIdentifier.StartsWith('win'))">
