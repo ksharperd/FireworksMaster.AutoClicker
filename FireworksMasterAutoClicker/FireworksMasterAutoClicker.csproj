@@ -52,11 +52,15 @@
     <DirectPInvoke Include="User32" />
     <DirectPInvoke Include="Advapi32" />
     <DirectPInvoke Include="OpenCvSharpExtern" />
+    <DirectPInvoke Include="external_renderer_ipc" />
+    <NativeLibrary Include="delayimp.lib"/>
     <NativeLibrary Include="$(ProjectDir)lib\x64\OpenCvSharpExtern.lib" Condition="$(RuntimeIdentifier.StartsWith('win-x64'))" />
+    <NativeLibrary Include="$(ProjectDir)lib\x64\external_renderer_ipc.lib" Condition="$(RuntimeIdentifier.StartsWith('win-x64'))" />
   </ItemGroup>
 
   <ItemGroup Condition="$(RuntimeIdentifier.StartsWith('win'))">
-    <LinkerArg Include="/merge:.managedcode=.text /merge:hydrated=.bss" />
+    <LinkerArg Include="/delayload:external_renderer_ipc.dll" />
+    <LinkerArg Include="/delay:unload" />
     <LinkerArg Include="/opt:ref /opt:icf" />
     <LinkerArg Include="/emittoolversioninfo:no" />
 	<LinkerArg Include="/emitpogophaseinfo" Condition="$(Configuration) == 'Release'" />
