@@ -179,6 +179,8 @@ namespace FMAC
             this.Text = "FMAC";
             this.Load += MainForm_Load;
             this.MaximizeBox = false;
+            this.ShowIcon = false;
+            this.StartPosition = FormStartPosition.CenterScreen;
 
             this.Controls.Add(btnToggle);
             this.Controls.Add(btnPreview);
