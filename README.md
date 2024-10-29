@@ -12,9 +12,10 @@
 
 ## 注意
 1. 本 Repo 僅支援 MuMu 模擬器。
-2. 在執行 `FireworksMasterAutoClicker.exe` 前必須啓動 MuMu 模擬器 並打開 森空島 內的活動頁面。
-3. 如果執行後沒有在 'FMAC' 視窗內看到模擬器的畫面或發現定位點有偏離，請根據你的情況自行調整 settings.json 內的 MultiEmulatorInstanceIndex、MultiAppInstanceIndex 等關鍵設定項。
-4. MultiEmulatorInstanceIndex 是 MuMu 多開器 內左側的 ID，MultiAppInstanceIndex 是應用程式多開的 ID。
+2. 推薦的模擬器畫面 ratio 爲 16:9(鎖定橫向) 或 9:16(直向)。
+3. 在執行 `FireworksMasterAutoClicker.exe` 前必須啓動 MuMu 模擬器 並打開 森空島 內的活動頁面。
+4. 如果執行後沒有在 'FMAC' 視窗內看到模擬器的畫面或發現定位點有偏離，請根據你的情況自行調整 settings.json 內的 MultiEmulatorInstanceIndex、MultiAppInstanceIndex 等關鍵設定項。
+5. MultiEmulatorInstanceIndex 是 MuMu 多開器 內左側的 ID，MultiAppInstanceIndex 是應用程式多開的 ID。
 
 ## 聲明
 1. 明日方舟、森空島等等是鷹角網絡的商標。
