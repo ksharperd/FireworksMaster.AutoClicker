@@ -160,15 +160,18 @@ namespace FMAC
             Log.Debug($"Successfully create nemu handle, id={nemuHandle}");
             btnPreview.BeginInvoke(btnPreview.PerformClick);
             int mode = 0;
+            int rank = 0;
             do
             {
                 if (stopCapture)
                 {
+                    rank = 0;
                     continue;
                 }
                 var image = GetScreenCapture();
                 if (image is null)
                 {
+                    rank = 0;
                     continue;
                 }
 
@@ -210,6 +213,8 @@ namespace FMAC
                         pos = GetButtonsPos(image)[count % 10];
                         RaiseTouchEventOnEmu(pos.Item1, pos.Item2);
                         btnPreview.BeginInvoke(btnPreview.PerformClick);
+                        ++rank;
+                        Log.Info($"Current score {rank}");
                     }
 
                     mode = 1;
