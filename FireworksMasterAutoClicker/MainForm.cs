@@ -252,7 +252,7 @@ namespace FMAC
                 return default;
             }
 
-            using var mat = new Mat(height, width, MatType.CV_8UC4);
+            var mat = new Mat(height, width, MatType.CV_8UC4);
             unsafe
             {
                 using var raw = Mat.FromPixelData(height, width, MatType.CV_8UC4, (nint)Unsafe.AsPointer(ref pixels));
@@ -260,8 +260,13 @@ namespace FMAC
                 Cv2.CvtColor(raw, mat, ColorConversionCodes.RGBA2BGR);
             }
             Cv2.Flip(mat, mat, FlipMode.X);
+            var image = mat.ToBitmap();
+            if (!mat.IsDisposed)
+            {
+                mat.Dispose();
+            }
 
-            return mat.ToBitmap();
+            return image;
         }
 
         private void RaiseTouchEventOnEmu(int pointX, int pointY)
