@@ -1,6 +1,7 @@
 using System.Buffers;
 using System.Diagnostics;
 using System.Runtime.CompilerServices;
+using System.Text.Json;
 
 using FMAC.EmulatorInterop;
 
@@ -24,23 +25,9 @@ namespace FMAC
         private int displayId = 0;
         private int nemuHandle = 0;
         private bool stopCapture = false;
+        private readonly Settings settings;
 
         private const string TARGET_PKG_NAME = "com.hypergryph.skland";
-        private const string DEBUG_PKG_NAME = "com.mumu.launcher";
-        private const float FACTOR_CHECKPOINT_X = 0.588888f;
-        private const float FACTOR_CHECKPOINT_Y = 0.384375f;
-        private const float FACTOR_REDPOINT_X = 0.248611f;
-        private const float FACTOR_REDPOINT_Y = 0.177343f;
-        private const float FACTOR_BLUEPOINT_X = 0.236111f;
-        private const float FACTOR_BLUEPOINT_Y = 0.397656f;
-        private const float FACTOR_PADDING_X = 0.061111f;
-        private const float FACTOR_PADDING_Y = 0.034375f;
-        private const float FACTOR_PADDING_BTN_X = 0.194444f;
-        private const float FACTOR_PADDING_BTN_Y = 0.084375f;
-        private const float FACTOR_BTN_0_X = 0.229166f;
-        private const float FACTOR_BTN_0_Y = 0.711718f;
-        private const float FACTOR_BTN_1_X = 0.120833f;
-        private const float FACTOR_BTN_1_Y = 0.796093f;
 
         public MainForm()
         {
@@ -65,6 +52,39 @@ namespace FMAC
             btnPreview.Left = paddingLeft + buttonSize.Width + paddingLeft;
             btnPreview.Top = paddingTop;
 
+            settings = new();
+            const string JsonSettingsFileName = "settings.json";
+            if (File.Exists(JsonSettingsFileName))
+            {
+                try
+                {
+                    var loaded = JsonSerializer.Deserialize(File.ReadAllText(JsonSettingsFileName), SettingsSerializerContext.Default.Settings);
+                    if (loaded is not null)
+                    {
+                        settings = loaded;
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Log.Error($"Failed to deserialize settings: {ex.Message}");
+                }
+            }
+            else
+            {
+                try
+                {
+                    var jsonString = JsonSerializer.Serialize(settings, SettingsSerializerContext.Default.Settings);
+                    if (!string.IsNullOrEmpty(jsonString))
+                    {
+                        File.WriteAllText(JsonSettingsFileName, jsonString);
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Log.Error($"Failed to deserialize settings: {ex.Message}");
+                }
+            }
+
             ThreadPool.QueueUserWorkItem(ConnectorMain);
             ThreadPool.QueueUserWorkItem(WorkerMain);
         }
@@ -87,9 +107,9 @@ namespace FMAC
             using var bluePen = new Pen(Color.Blue);
             using var font = new Font("Arial", 12, FontStyle.Bold);
 
-            DrawRectanglesOnImage(image, greenPen.Brush, FACTOR_CHECKPOINT_X, FACTOR_CHECKPOINT_Y, cols: 1, rows: 1);
-            DrawRectanglesOnImage(image, redPen.Brush, FACTOR_REDPOINT_X, FACTOR_REDPOINT_Y);
-            DrawRectanglesOnImage(image, bluePen.Brush, FACTOR_BLUEPOINT_X, FACTOR_BLUEPOINT_Y);
+            DrawRectanglesOnImage(image, greenPen.Brush, settings.FactorCheckPointX, settings.FactorCheckPointY, settings.FactorPaddingX, settings.FactorPaddingY, 1, 1);
+            DrawRectanglesOnImage(image, redPen.Brush, settings.FactorRedPointX, settings.FactorRedPointY, settings.FactorPaddingX, settings.FactorPaddingY);
+            DrawRectanglesOnImage(image, bluePen.Brush, settings.FactorBluePointX, settings.FactorBluePointY, settings.FactorPaddingX, settings.FactorPaddingY);
 
             DrawButtonsTextOnImage(image, font, greenPen.Brush);
 
@@ -127,7 +147,7 @@ namespace FMAC
                     continue;
                 }
 
-                nemuHandle = MuMu.Connect(installDirMuMu, 1);
+                nemuHandle = MuMu.Connect(installDirMuMu, settings.MultiEmulatorInstanceIndex);
             } while (ShouldLoop());
         }
 
@@ -152,7 +172,7 @@ namespace FMAC
                     continue;
                 }
 
-                var checkColour = image.GetPixel(PRF(image.Width, FACTOR_CHECKPOINT_X), PRF(image.Height, FACTOR_CHECKPOINT_Y));
+                var checkColour = image.GetPixel(PRF(image.Width, settings.FactorCheckPointX), PRF(image.Height, settings.FactorCheckPointY));
                 if ((Math.Abs(checkColour.R - 180) >= 15) && (Math.Abs(checkColour.G - 180) >= 15))
                 {
                     mode = 0;
@@ -167,8 +187,8 @@ namespace FMAC
                     image.Dispose();
                     image = GetScreenCapture()!;
 
-                    var redTargets = ProcessRectanglesOnImage(image, FACTOR_REDPOINT_X, FACTOR_REDPOINT_Y);
-                    var blueTargets = ProcessRectanglesOnImage(image, FACTOR_BLUEPOINT_X, FACTOR_BLUEPOINT_Y);
+                    var redTargets = ProcessRectanglesOnImage(image, settings.FactorRedPointX, settings.FactorRedPointY, settings.FactorPaddingX, settings.FactorPaddingY);
+                    var blueTargets = ProcessRectanglesOnImage(image, settings.FactorBluePointX, settings.FactorBluePointY, settings.FactorPaddingX, settings.FactorPaddingY);
                     for (int i = 0; i < redTargets.Count; i++)
                     {
                         var redRect = redTargets[i];
@@ -210,7 +230,7 @@ namespace FMAC
         private Bitmap? GetScreenCapture()
         {
             int width = 0, height = 0;
-            displayId = MuMu.GetDisplayId(nemuHandle, TARGET_PKG_NAME, 0);
+            displayId = MuMu.GetDisplayId(nemuHandle, TARGET_PKG_NAME, settings.MultiAppInstanceIndex);
             if (displayId < 0)
             {
                 return default;
@@ -260,16 +280,16 @@ namespace FMAC
             }
         }
 
-        private static Dictionary<int, (int, int)> GetButtonsPos(Image image)
+        private Dictionary<int, (int, int)> GetButtonsPos(Image image)
         {
             Dictionary<int, (int, int)> buttons = [];
-            var result = ProcessRectanglesOnImage(image, FACTOR_BTN_0_X, FACTOR_BTN_0_Y, FACTOR_PADDING_BTN_X, FACTOR_PADDING_BTN_Y, 4, 3);
+            var result = ProcessRectanglesOnImage(image, settings.FactorBtn0X, settings.FactorBtn0Y, settings.FactorPaddingBtnX, settings.FactorPaddingBtnY, 4, 3);
             InitBtnPos(buttons, 0, result[0]);
             InitBtnPos(buttons, 6, result[2]);
             InitBtnPos(buttons, 7, result[5]);
             InitBtnPos(buttons, 8, result[8]);
             InitBtnPos(buttons, 9, result[11]);
-            result = ProcessRectanglesOnImage(image, FACTOR_BTN_1_X, FACTOR_BTN_1_Y, FACTOR_PADDING_BTN_X, FACTOR_PADDING_BTN_Y, 5, 1);
+            result = ProcessRectanglesOnImage(image, settings.FactorBtn1X, settings.FactorBtn1Y, settings.FactorPaddingBtnX, settings.FactorPaddingBtnY, 5, 1);
             InitBtnPos(buttons, 1, result[0]);
             InitBtnPos(buttons, 2, result[1]);
             InitBtnPos(buttons, 3, result[2]);
@@ -278,13 +298,7 @@ namespace FMAC
             return buttons;
         }
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private static void InitBtnPos(Dictionary<int, (int, int)> buttons, int id, Rectangle pos)
-        {
-            buttons.Add(id, (pos.Left, pos.Top));
-        }
-
-        private static void DrawButtonsTextOnImage(Image image, Font font, Brush brush)
+        private void DrawButtonsTextOnImage(Image image, Font font, Brush brush)
         {
             using var g = Graphics.FromImage(image);
             var buttons = GetButtonsPos(image);
@@ -294,7 +308,13 @@ namespace FMAC
             }
         }
 
-        private static void DrawRectanglesOnImage(Image image, Brush brush, float factorX, float factorY, float factorPaddingX = FACTOR_PADDING_X, float factorPaddingY = FACTOR_PADDING_Y, int cols = 5, int rows = 5)
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private static void InitBtnPos(Dictionary<int, (int, int)> buttons, int id, Rectangle pos)
+        {
+            buttons.Add(id, (pos.Left, pos.Top));
+        }
+
+        private static void DrawRectanglesOnImage(Image image, Brush brush, float factorX, float factorY, float factorPaddingX, float factorPaddingY, int cols = 5, int rows = 5)
         {
             using var g = Graphics.FromImage(image);
             var rectangles = ProcessRectanglesOnImage(image, factorX, factorY, factorPaddingX, factorPaddingY, cols, rows, 10, 10);
@@ -304,7 +324,7 @@ namespace FMAC
             }
         }
 
-        private static List<Rectangle> ProcessRectanglesOnImage(Image image, float factorX, float factorY, float factorPaddingX = FACTOR_PADDING_X, float factorPaddingY = FACTOR_PADDING_Y, int cols = 5, int rows = 5, int rectWidth = 1, int rectHeight = 1)
+        private static List<Rectangle> ProcessRectanglesOnImage(Image image, float factorX, float factorY, float factorPaddingX, float factorPaddingY, int cols = 5, int rows = 5, int rectWidth = 1, int rectHeight = 1)
         {
             var rectangles = new List<Rectangle>(cols * rows);
             for (int col = 0; col < cols; col++)

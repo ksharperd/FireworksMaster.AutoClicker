@@ -31,6 +31,8 @@ namespace FMAC
             Native.AllocConsole();
             Console.Title = "FMAC Console";
 
+            AppDomain.CurrentDomain.UnhandledException += UnhandledExceptionHandler;
+
             // To customize application configuration such as set high DPI settings or default font,
             // see https://aka.ms/applicationconfiguration.
             Application.EnableVisualStyles();
@@ -55,6 +57,16 @@ namespace FMAC
             }
 
             Application.Run(new MainForm());
+        }
+
+        private static void UnhandledExceptionHandler(object sender, UnhandledExceptionEventArgs e)
+        {
+            if (!e.IsTerminating)
+            {
+                return;
+            }
+            Log.Error("Unhandled exception throws.", (Exception)e.ExceptionObject);
+            MessageBox.Show(null, e.ExceptionObject.ToString(), "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
         }
 
         private static int GetSystemColour()
