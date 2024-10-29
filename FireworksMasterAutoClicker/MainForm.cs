@@ -160,7 +160,7 @@ namespace FMAC
             Log.Debug($"Successfully create nemu handle, id={nemuHandle}");
             btnPreview.BeginInvoke(btnPreview.PerformClick);
             int mode = 0;
-            int rank = 0;
+            int rank = -1;
             do
             {
                 if (stopCapture)
