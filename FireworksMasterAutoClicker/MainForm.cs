@@ -235,7 +235,7 @@ namespace FMAC
             ThreadPool.QueueUserWorkItem(WorkerMain);
         }
 
-        private unsafe Bitmap? GetScreenCapture()
+        private Bitmap? GetScreenCapture()
         {
             int width = 0, height = 0;
             displayId = MuMu.GetDisplayId(nemuHandle, TARGET_PKG_NAME, settings.MultiAppInstanceIndex);
@@ -249,29 +249,23 @@ namespace FMAC
             }
             var bufferSize = width * height * 4;
             var buffer = ArrayPool<byte>.Shared.Rent(bufferSize);
-            fixed (byte* pBuffer = buffer)
+            if (MuMu.CaptureDisplay(nemuHandle, displayId, bufferSize, ref width, ref height, ref buffer[0]) != 0)
             {
-                ref var pixels = ref Unsafe.AsRef<byte>(pBuffer);
-                if (MuMu.CaptureDisplay(nemuHandle, displayId, bufferSize, ref width, ref height, ref pixels) != 0)
-                {
-                    ArrayPool<byte>.Shared.Return(buffer, true);
-                    return default;
-                }
-
-                if (MuMu.CaptureDisplay(nemuHandle, displayId, bufferSize, ref width, ref height, ref pixels) != 0)
-                {
-                    ArrayPool<byte>.Shared.Return(buffer, true);
-                    return default;
-                }
-
-                using var raw = Mat.FromPixelData(height, width, MatType.CV_8UC4, (nint)pBuffer);
-                using var mat = new Mat(height, width, MatType.CV_8UC4);
-                Cv2.CvtColor(raw, mat, ColorConversionCodes.RGBA2BGR);
-                var image = mat.ToBitmap();
-                image.RotateFlip(RotateFlipType.Rotate180FlipX);
                 ArrayPool<byte>.Shared.Return(buffer, true);
-                return image;
+                return default;
             }
+
+            var mat = new Mat(height, width, MatType.CV_8UC4);
+            unsafe
+            {
+                using var raw = Mat.FromPixelData(height, width, MatType.CV_8UC4, (nint)Unsafe.AsPointer(ref buffer[0]));
+                raw.IsEnabledDispose = false;
+                Cv2.CvtColor(raw, mat, ColorConversionCodes.RGBA2BGR);
+            }
+            var image = mat.ToBitmap();
+            image.RotateFlip(RotateFlipType.Rotate180FlipX);
+
+            return image;
         }
 
         private void RaiseTouchEventOnEmu(int pointX, int pointY)
