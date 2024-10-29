@@ -251,7 +251,7 @@ namespace FMAC
             var buffer = ArrayPool<byte>.Shared.Rent(bufferSize);
             if (MuMu.CaptureDisplay(nemuHandle, displayId, bufferSize, ref width, ref height, ref buffer[0]) != 0)
             {
-                ArrayPool<byte>.Shared.Return(buffer, true);
+                ArrayPool<byte>.Shared.Return(buffer);
                 return default;
             }
 
