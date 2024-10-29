@@ -19,3 +19,6 @@
 ## 聲明
 1. 明日方舟、森空島等等是鷹角網絡的商標。
 2. 本 Repo 僅供娛樂，本人不負任何使用本 Repo 造成的後果及責任。
+
+## 感謝
+本 Repo 的部分演算法來自 [xTaiwanPingLord](https://github.com/xTaiwanPingLord) 的 [fireworks_master_autoclicker](https://github.com/xTaiwanPingLord/fireworks_master_autoclicker)
