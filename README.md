@@ -2,7 +2,7 @@
 ## 使用方式
 ### 從 Source Code 建置：
 1. Clone 本 Repo。
-2. 在 [這裏](https://github.com/dotnet/installer#table) 下載並安裝 **64位元的** dotnet-sdk-10。
+2. 在 [這裏](https://github.com/dotnet/sdk/blob/main/documentation/package-table.md) 下載並安裝 **64位元的** dotnet-sdk-10.0.x。
 3. 在本 Repo 根目錄執行 `dotnet build -r win-x64 -c Release` 或 `dotnet publish -r win-x64 -c Release`。
 4. 執行建置成功後得到的 `FireworksMasterAutoClicker.exe`。
 
